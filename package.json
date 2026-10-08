@@ -1,0 +1,13 @@
+{
+  "name": "bus28-seat-booking",
+  "version": "1.0.0",
+  "description": "اختار كرسيك في اتوبيس 28 فرد - نظام حجز مشترك",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT"
+}

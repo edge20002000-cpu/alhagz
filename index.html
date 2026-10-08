@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>اختار كرسيك في الأتوبيس — ٢٨ فرد</title>
+<style>
+  :root{
+    --bg1:#0b1220; --bg2:#152743;
+    --free-bg:#e9f9f0; --free-bd:#2fc37f; --free-tx:#12784a;
+    --sel:#2f6bff;
+    --booked-bg:#eef1f6; --booked-bd:#ccd3df; --booked-tx:#9aa4b5;
+    --mine-bg:#fff4d9; --mine-bd:#f2a51b; --mine-tx:#9a6200;
+    --card:#ffffff; --ink:#182238;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0; min-height:100vh; padding:18px 14px 40px;
+    background:radial-gradient(1200px 600px at 80% -10%, #23406f 0%, transparent 60%),
+               linear-gradient(160deg, var(--bg1), var(--bg2));
+    font-family:"Segoe UI", Tahoma, Arial, sans-serif; color:#eaf0ff;
+  }
+  .container{max-width:560px;margin:0 auto}
+
+  /* ===== Header ===== */
+  header{text-align:center;margin-bottom:16px}
+  header h1{margin:0 0 6px;font-size:23px;letter-spacing:.2px}
+  header p{margin:0;opacity:.75;font-size:14px}
+  .counter{
+    display:inline-block;margin-top:12px;background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.16);padding:7px 16px;border-radius:999px;
+    font-size:14px;font-weight:700
+  }
+  .counter b{color:#5ff0a9}
+
+  /* ===== Bus ===== */
+  .bus{
+    background:var(--card); color:var(--ink);
+    border-radius:30px; padding:16px 14px 20px; margin-top:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,.45);
+    border-top:8px solid #2f6bff;
+    position:relative; overflow:hidden;
+  }
+  .bus::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(47,107,255,.05), transparent 30%);
+  }
+  .front{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:2px 8px 14px; border-bottom:2px dashed #e3e8f1; margin-bottom:14px;
+  }
+  .driver{display:flex;align-items:center;gap:10px}
+  .steer{
+    width:46px;height:46px;border:5px solid #26304a;border-radius:50%;position:relative;
+    background:#f4f7fc
+  }
+  .steer::before,.steer::after{
+    content:"";position:absolute;background:#26304a
+  }
+  .steer::before{left:50%;top:4px;bottom:4px;width:4px;transform:translateX(-50%)}
+  .steer::after{top:50%;left:4px;right:4px;height:4px;transform:translateY(-50%)}
+  .driver .txt{font-size:13px;font-weight:700;color:#5b6480}
+  .driver .txt small{display:block;font-weight:400;color:#8b96ab;font-size:11px}
+  .door{
+    background:#eef7f1;border:2px solid #bfe7d2;color:#2c8f5f;border-radius:12px;
+    padding:8px 14px;font-size:12px;font-weight:700;text-align:center;line-height:1.4
+  }
+
+  /* ===== Seats grid ===== */
+  .rows{display:flex;flex-direction:column;gap:10px;position:relative}
+  .row{
+    display:grid; grid-template-columns:1fr 1fr 44px 1fr 1fr; gap:8px; align-items:stretch;
+  }
+  .aisle{
+    grid-column:3; border-radius:10px; background:
+      repeating-linear-gradient(180deg,#f1f4f9 0 8px, transparent 8px 16px);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:#b6bfd0;font-weight:700
+  }
+  .seat{
+    border:2.5px solid var(--free-bd); background:var(--free-bg); color:var(--free-tx);
+    border-radius:14px 14px 9px 9px; padding:9px 2px 7px; cursor:pointer;
+    font-weight:800; font-size:16px; text-align:center; transition:.14s ease;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    min-height:56px; position:relative; user-select:none
+  }
+  .seat .sub{font-size:9.5px;font-weight:700;opacity:.85}
+  .seat .leg{width:70%;height:3px;background:currentColor;opacity:.25;border-radius:3px;position:absolute;bottom:4px}
+  .seat:hover{transform:translateY(-3px);box-shadow:0 6px 14px rgba(47,107,255,.18)}
+  .seat.sel{background:var(--sel);border-color:var(--sel);color:#fff;transform:translateY(-3px)}
+  .seat.booked{
+    background:var(--booked-bg);border-color:var(--booked-bd);color:var(--booked-tx);
+    cursor:not-allowed;transform:none;box-shadow:none
+  }
+  .seat.mine{
+    background:var(--mine-bg);border-color:var(--mine-bd);color:var(--mine-tx);
+    box-shadow:0 0 0 3px rgba(242,165,27,.25)
+  }
+  .rowno{display:none}
+
+  /* ===== Legend ===== */
+  .legend{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin-top:16px;font-size:12.5px;color:#5c6680}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:15px;height:15px;border-radius:5px;border:2px solid}
+  .dot.f{background:var(--free-bg);border-color:var(--free-bd)}
+  .dot.b{background:var(--booked-bg);border-color:var(--booked-bd)}
+  .dot.m{background:var(--mine-bg);border-color:var(--mine-bd)}
+
+  /* ===== My booking ===== */
+  .mine-card{
+    display:none; margin-top:16px; background:linear-gradient(135deg,#fff4d9,#ffe9b8);
+    color:#6b4400; border-radius:18px; padding:14px 16px; border:1px solid #f6cf7a;
+    box-shadow:0 10px 26px rgba(0,0,0,.25)
+  }
+  .mine-card.show{display:block}
+  .mine-card h4{margin:0 0 4px;font-size:16px}
+  .mine-card p{margin:0;font-size:13.5px;line-height:1.7}
+  .mine-card button{
+    margin-top:10px;background:#fff;border:1.5px solid #e05b4b;color:#c93a29;
+    padding:8px 16px;border-radius:10px;font-weight:700;cursor:pointer;font-size:13.5px
+  }
+
+  .hint{text-align:center;font-size:12.5px;opacity:.6;margin-top:14px;line-height:1.8}
+
+  /* ===== Modal ===== */
+  .modal{
+    position:fixed;inset:0;background:rgba(5,10,22,.72);backdrop-filter:blur(3px);
+    display:flex;align-items:flex-end;justify-content:center;z-index:50;opacity:1;transition:.2s
+  }
+  .modal.hidden{opacity:0;pointer-events:none}
+  .sheet{
+    background:#fff;color:var(--ink);width:100%;max-width:520px;
+    border-radius:24px 24px 0 0;padding:22px 20px 26px;
+    transform:translateY(0);transition:.25s ease
+  }
+  .modal.hidden .sheet{transform:translateY(40px)}
+  @media(min-width:560px){
+    .modal{align-items:center}
+    .sheet{border-radius:24px}
+  }
+  .sheet h3{margin:0 0 4px;font-size:19px}
+  .sheet .seat-chip{
+    display:inline-block;background:#eef3ff;color:#2f6bff;border:1.5px solid #c6d6ff;
+    padding:4px 12px;border-radius:999px;font-weight:800;font-size:14px;margin-bottom:12px
+  }
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;color:#4a5570}
+  .field input{
+    width:100%;padding:12px 14px;border:1.8px solid #dfe5f0;border-radius:12px;
+    font-size:15.5px;outline:none;background:#fafbfe
+  }
+  .field input:focus{border-color:#2f6bff;background:#fff}
+  .err{color:#e0432f;font-size:12.5px;margin-top:6px;display:none;font-weight:700}
+  .btns{display:flex;gap:10px;margin-top:6px}
+  .btn{flex:1;padding:13px;border-radius:13px;font-size:15.5px;font-weight:800;cursor:pointer;border:none}
+  .btn.primary{background:linear-gradient(135deg,#2f6bff,#4f3dff);color:#fff;box-shadow:0 8px 20px rgba(47,107,255,.35)}
+  .btn.ghost{background:#f1f4fa;color:#5a6480;flex:0 0 96px}
+  .btn.danger{background:linear-gradient(135deg,#e0432f,#c93a29);color:#fff}
+  .btn:active{transform:scale(.98)}
+
+  /* ===== Toast ===== */
+  #toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(80px);
+    background:#101a30;color:#fff;padding:12px 20px;border-radius:14px;font-size:14px;
+    font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:60;transition:.3s;
+    opacity:0;max-width:90%;text-align:center;border:1px solid rgba(255,255,255,.15)
+  }
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  #toast.ok{background:#0f7a4d}
+  #toast.bad{background:#a8321f}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🚌 اختار كرسيك في الأتوبيس</h1>
+    <p>اضغط على أي كرسي متاح واحجز اسمك عليه — ٢٨ فرد</p>
+    <div class="counter" id="counter">المتاح <b>…</b> من ٢٨</div>
+  </header>
+
+  <div class="bus">
+    <div class="front">
+      <div class="driver">
+        <div class="steer"></div>
+        <div class="txt">سائق الأتوبيس<small>مقعدين جنبه = صف ١</small></div>
+      </div>
+      <div class="door">باب الركاب ⬅<br>الدخول من هنا</div>
+    </div>
+    <div class="rows" id="rows"></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot f"></i> متاح</span>
+    <span><i class="dot b"></i> محجوز</span>
+    <span><i class="dot m"></i> كرسيك</span>
+  </div>
+
+  <div class="mine-card" id="mineCard">
+    <h4>🎫 حجزك مؤكَّد</h4>
+    <p id="mineInfo"></p>
+    <button id="cancelBtn">إلغاء حجزي</button>
+  </div>
+
+  <p class="hint">
+    الحجوزات بتتحدّث لحظياً عند كل الناس — لو شايف كرسي رمادي يبقى حد سبقك 😄<br>
+    ملاحظة: كل جهاز بيحجز <b>كرسي واحد بس</b> — لو حجزت كرسي تاني، القديم يتلغي تلقائياً.
+  </p>
+</div>
+
+<!-- Modal -->
+<div class="modal hidden" id="modal">
+  <div class="sheet">
+    <h3 id="mTitle">تأكيد الحجز</h3>
+    <div class="seat-chip" id="mSeat">كرسي —</div>
+
+    <div id="formFields">
+      <div class="field">
+        <label for="fName">الاسم بالكامل</label>
+        <input id="fName" type="text" placeholder="مثال: أحمد محمد" autocomplete="name" />
+      </div>
+      <div class="field">
+        <label for="fPhone">رقم الموبايل</label>
+        <input id="fPhone" type="tel" inputmode="numeric" placeholder="01xxxxxxxxx" autocomplete="tel" />
+        <div class="err" id="fErr"></div>
+      </div>
+      <div class="btns">
+        <button class="btn primary" id="confirmBtn">تأكيد الحجز ✅</button>
+        <button class="btn ghost" id="closeBtn">رجوع</button>
+      </div>
+    </div>
+
+    <div id="cancelFields" style="display:none">
+      <p style="margin:4px 0 14px;font-size:14.5px;line-height:1.8;color:#5a6480">
+        ده كرسيك المحجوز باسمك. لو هتلغي الحجز الكرسي هيرجع متاح تاني للناس فوراً.
+      </p>
+      <div class="btns">
+        <button class="btn danger" id="doCancelBtn">إلغاء الحجز</button>
+        <button class="btn ghost" id="closeBtn2">تمام</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ====== إعدادات بتقدر تغيّرها ====== */
+const TRIP_TITLE = "اختار كرسيك في الأتوبيس";
+const SEAT_COUNT = 28;          // عدد الكراسي
+const API_BASE   = "/api";      // لو هتحطها على PHP غيّرها لـ "/api" كمان (السيرفر_PHP بيشتغل بنفس المسار)
+const POLL_MS    = 4000;        // حدّت الحجوزات كل كام ملي ثانية
+
+/* ====== التوكن (بيثبت على جهاز المستخدم عشان يعرف يلغي حجزه) ====== */
+function getToken(){
+  let t = localStorage.getItem("bus28_token");
+  if(!t){
+    const a = new Uint8Array(16);
+    crypto.getRandomValues(a);
+    t = Array.from(a, b => b.toString(16).padStart(2,"0")).join("");
+    localStorage.setItem("bus28_token", t);
+  }
+  return t;
+}
+const TOKEN = getToken();
+
+/* ====== بناء شكل الأتوبيس ====== */
+const rowsEl = document.getElementById("rows");
+function buildBus(){
+  rowsEl.innerHTML = "";
+  const perRow = 4;
+  const totalRows = Math.ceil(SEAT_COUNT / perRow);
+  for(let r = 0; r < totalRows; r++){
+    const row = document.createElement("div");
+    row.className = "row";
+    const first = r * perRow + 1;
+    for(let c = 1; c <= perRow + 1; c++){
+      if(c === 3){
+        const a = document.createElement("div");
+        a.className = "aisle";
+        a.textContent = (r + 1);
+        row.appendChild(a);
+        continue;
+      }
+      const id = first + (c > 3 ? c - 2 : c - 1);
+      if(id > SEAT_COUNT) continue;
+      const s = document.createElement("button");
+      s.className = "seat";
+      s.dataset.id = id;
+      s.innerHTML = `<span>${id}</span><span class="sub">مقعد</span><i class="leg"></i>`;
+      s.onclick = () => onSeat(id);
+      row.appendChild(s);
+    }
+    rowsEl.appendChild(row);
+  }
+}
+buildBus();
+
+/* ====== الحالة ====== */
+let seats = [];
+let selected = null;
+let myBooking = JSON.parse(localStorage.getItem("bus28_booking") || "null");
+
+async function api(path, opts){
+  const res = await fetch(API_BASE + path, Object.assign({headers:{"Content-Type":"application/json"}}, opts));
+  let data = {};
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok) throw Object.assign(new Error(data.error || "خطأ غير متوقع"), {status:res.status});
+  return data;
+}
+
+async function loadSeats(){
+  try{
+    const data = await api("/seats?token=" + encodeURIComponent(TOKEN));
+    seats = data.seats;
+    render();
+  }catch(e){
+    if(!seats.length) toast("مش قادرين نوصل للسيرفر، جرّب تحديث الصفحة", "bad");
+  }
+}
+
+function render(){
+  const map = {};
+  seats.forEach(s => map[s.id] = s);
+  let free = 0;
+  document.querySelectorAll(".seat").forEach(el => {
+    const id = +el.dataset.id;
+    const s = map[id] || {status:"free"};
+    if(s.status === "free") free++;
+    el.classList.toggle("booked", s.status === "booked");
+    el.classList.toggle("mine", s.status === "mine");
+    el.classList.toggle("sel", selected === id && s.status !== "booked");
+    const sub = el.querySelector(".sub");
+    sub.textContent = s.status === "booked" ? "محجوز" : (s.status === "mine" ? "كرسيك ✓" : "متاح");
+    el.title = s.status === "booked" ? "محجوز" : (s.status === "mine" ? "ده كرسيك" : "متاح - اضغط للحجز");
+  });
+  document.getElementById("counter").innerHTML = `المتاح <b>${free}</b> من ${SEAT_COUNT}`;
+  renderMineCard();
+}
+
+function renderMineCard(){
+  const card = document.getElementById("mineCard");
+  const mine = seats.find(s => s.status === "mine");
+  if(mine){
+    card.classList.add("show");
+    const info = myBooking && myBooking.seat === mine.id ? myBooking : null;
+    document.getElementById("mineInfo").innerHTML =
+      `الكرسي رقم <b>${mine.id}</b>` +
+      (mine.name ? ` — باسم <b>${escapeHtml(mine.name)}</b>` : "") +
+      (info ? `<br>موبايل: ${escapeHtml(info.phone)}` : "") +
+      `<br>احتفظ بالرقم ده وورّيه للسواق وقة الركوب 🎫`;
+  }else{
+    card.classList.remove("show");
+    if(myBooking){ myBooking = null; localStorage.removeItem("bus28_booking"); }
+  }
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ====== تفاعل الكرسي ====== */
+const modal = document.getElementById("modal");
+function onSeat(id){
+  const s = seats.find(x => x.id === id);
+  if(!s) return;
+  if(s.status === "booked"){ toast("الكرسي رقم " + id + " محجوز بالفعل 😅", "bad"); return; }
+  if(s.status === "mine"){ openCancel(id); return; }
+  selected = id;
+  render();
+  openBook(id);
+}
+
+function openBook(id){
+  document.getElementById("mTitle").textContent = "حجز كرسي رقم " + id;
+  document.getElementById("mSeat").textContent = "🪑 كرسي رقم " + id;
+  document.getElementById("formFields").style.display = "block";
+  document.getElementById("cancelFields").style.display = "none";
+  document.getElementById("fErr").style.display = "none";
+  const saved = myBooking || {};
+  document.getElementById("fName").value = saved.name || "";
+  document.getElementById("fPhone").value = saved.phone || "";
+  modal.classList.remove("hidden");
+  setTimeout(() => document.getElementById("fName").focus(), 250);
+}
+function openCancel(id){
+  document.getElementById("mTitle").textContent = "كرسيك رقم " + id;
+  document.getElementById("mSeat").textContent = "🪑 كرسي رقم " + id;
+  document.getElementById("formFields").style.display = "none";
+  document.getElementById("cancelFields").style.display = "block";
+  modal.classList.remove("hidden");
+}
+function closeModal(){ modal.classList.add("hidden"); selected = null; render(); }
+
+document.getElementById("closeBtn").onclick = closeModal;
+document.getElementById("closeBtn2").onclick = closeModal;
+modal.onclick = e => { if(e.target === modal) closeModal(); };
+
+document.getElementById("confirmBtn").onclick = async () => {
+  const name = document.getElementById("fName").value.trim();
+  const phone = document.getElementById("fPhone").value.replace(/[\s\-()]/g, "");
+  const err = document.getElementById("fErr");
+  if(name.length < 3){ err.textContent = "اكتب اسمك بالكامل (٣ حروف على الأقل)"; err.style.display = "block"; return; }
+  if(!/^01[0125][0-9]{8}$/.test(phone)){ err.textContent = "رقم موبايل مصري غلط — المفروض يبدأ بـ 010 / 011 / 012 / 015"; err.style.display = "block"; return; }
+  err.style.display = "none";
+
+  const btn = document.getElementById("confirmBtn");
+  btn.disabled = true; btn.textContent = "جاري الحجز...";
+  try{
+    await api("/book", {method:"POST", body: JSON.stringify({seat:selected, name, phone, token:TOKEN})});
+    myBooking = {seat:selected, name, phone};
+    localStorage.setItem("bus28_booking", JSON.stringify(myBooking));
+    closeModal();
+    toast("اتحجز لك الكرسي رقم " + selected + " 🎉", "ok");
+    await loadSeats();
+  }catch(e){
+    toast(e.message || "حصلت مشكلة، جرّب تاني", "bad");
+    if(e.status === 409){ closeModal(); await loadSeats(); }
+  }finally{
+    btn.disabled = false; btn.textContent = "تأكيد الحجز ✅";
+  }
+};
+
+document.getElementById("cancelBtn").onclick = () => {
+  const mine = seats.find(s => s.status === "mine");
+  if(mine) openCancel(mine.id);
+};
+
+document.getElementById("doCancelBtn").onclick = async () => {
+  const mine = seats.find(s => s.status === "mine");
+  if(!mine) return closeModal();
+  try{
+    await api("/cancel", {method:"POST", body: JSON.stringify({seat:mine.id, token:TOKEN})});
+    closeModal();
+    toast("تم إلغاء حجزك — الكرسي رجع متاح", "ok");
+    await loadSeats();
+  }catch(e){
+    toast(e.message || "حصلت مشكلة", "bad");
+  }
+};
+
+/* ====== توست ====== */
+let toastTimer;
+function toast(msg, type){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show" + (type ? " " + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = "", 3200);
+}
+
+/* ====== تحديث مستمر ====== */
+loadSeats();
+setInterval(() => { if(!document.hidden) loadSeats(); }, POLL_MS);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) loadSeats(); });
+</script>
+</body>
+</html>
